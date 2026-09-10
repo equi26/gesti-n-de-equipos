@@ -24,8 +24,6 @@ Aplicación desarrollada con HTML, CSS y JavaScript puro que permite gestionar u
 4. Usa la barra de búsqueda para encontrar equipos específicos.
 5. Presiona "Editar" para modificar un equipo o "Eliminar" para borrarlo.
 
-## Tecnologías
+ALUMNOS:
 
-- HTML5
-- CSS3 (diseño responsive con gradientes y animaciones)
-- JavaScript Vanilla (manipulación del DOM)
+Román Leguizamón, Tiziano Monardi
