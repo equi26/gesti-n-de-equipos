@@ -1,0 +1,387 @@
+/* 
+   ESTILOS GLOBALES - GESTIÓN DE EQUIPOS
+    */
+
+/* Reset y configuración base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+/* Contenedor principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* 
+   HEADER
+    */
+header {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    color: #fff;
+    padding: 30px 40px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+header .subtitle {
+    font-size: 1rem;
+    opacity: 0.85;
+    font-weight: 300;
+}
+
+/* 
+   SECCIONES GENERALES
+    */
+section {
+    padding: 30px 40px;
+}
+
+section h2 {
+    font-size: 1.4rem;
+    color: #2d3748;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #667eea;
+    display: inline-block;
+}
+
+/* 
+   FORMULARIO
+    */
+.form-section {
+    background: #f7fafc;
+}
+
+#equipo-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background: #fff;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+.form-group input::placeholder {
+    color: #a0aec0;
+}
+
+/* Botones del formulario */
+.form-buttons {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn {
+    padding: 14px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.btn-secondary:hover {
+    background: #cbd5e0;
+}
+
+.btn-edit {
+    background: #48bb78;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+}
+
+.btn-edit:hover {
+    background: #38a169;
+}
+
+.btn-delete {
+    background: #fc8181;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+}
+
+.btn-delete:hover {
+    background: #f56565;
+}
+
+/* 
+   BÚSQUEDA Y FILTROS
+    */
+.search-section {
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+}
+
+.search-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.search-container input {
+    flex: 1;
+    min-width: 250px;
+    padding: 12px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.search-container input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+.search-container select {
+    padding: 12px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #fff;
+    cursor: pointer;
+}
+
+.search-container select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* 
+   TABLA DE EQUIPOS
+    */
+.table-section {
+    background: #f7fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+#tabla-equipos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+#tabla-equipos thead {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    color: #fff;
+}
+
+#tabla-equipos th {
+    padding: 14px 12px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#tabla-equipos td {
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+#tabla-equipos tbody tr:hover {
+    background: #edf2f7;
+}
+
+#tabla-equipos tbody tr:nth-child(even) {
+    background: #f7fafc;
+}
+
+#tabla-equipos tbody tr:nth-child(even):hover {
+    background: #edf2f7;
+}
+
+/* Botones de acciones en la tabla */
+.acciones {
+    display: flex;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+/* 
+   MENSAJE SIN EQUIPOS
+    */
+.sin-equipos {
+    text-align: center;
+    padding: 50px 20px;
+    color: #a0aec0;
+    font-size: 1.1rem;
+    display: block;
+}
+
+.sin-equipos p {
+    font-style: italic;
+}
+
+/* 
+   CONTADOR DE EQUIPOS
+    */
+#contador {
+    background: #667eea;
+    color: #fff;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* 
+   ANIMACIONES
+    */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#tabla-equipos tbody tr {
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* 
+   RESPONSIVE - DISEÑO ADAPTATIVO
+    */
+@media (max-width: 768px) {
+    header {
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    section {
+        padding: 20px;
+    }
+
+    #equipo-form {
+        grid-template-columns: 1fr;
+    }
+
+    .form-buttons {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .search-container {
+        flex-direction: column;
+    }
+
+    .search-container input,
+    .search-container select {
+        width: 100%;
+    }
+
+    .acciones {
+        flex-direction: column;
+    }
+
+    .acciones .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 1.2rem;
+    }
+
+    section h2 {
+        font-size: 1.1rem;
+    }
+
+    #tabla-equipos {
+        font-size: 0.8rem;
+    }
+
+    #tabla-equipos th,
+    #tabla-equipos td {
+        padding: 8px 6px;
+    }
+}

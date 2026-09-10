@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Equipos - CRUD</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Gestión de Equipos</h1>
+            <p class="subtitle">Administración de computadoras con operaciones CRUD</p>
+        </header>
+
+        <!-- Sección del formulario de carga de equipos -->
+        <section class="form-section">
+            <h2 id="form-title">Registrar Nuevo Equipo</h2>
+            <form id="equipo-form">
+                <!-- Campo: Tipo de computadora -->
+                <div class="form-group">
+                    <label for="tipo">Tipo de Computadora *</label>
+                    <select id="tipo" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="Notebook">Notebook</option>
+                        <option value="PC de Escritorio">PC de Escritorio</option>
+                        <option value="All-in-One">All-in-One</option>
+                        <option value="Servidor">Servidor</option>
+                    </select>
+                </div>
+
+                <!-- Campo: Nombre del titular -->
+                <div class="form-group">
+                    <label for="titular">Nombre del Titular *</label>
+                    <input type="text" id="titular" placeholder="Nombre del dueño o responsable" required>
+                </div>
+
+                <!-- Campo: Marca del equipo -->
+                <div class="form-group">
+                    <label for="marca">Marca del Equipo *</label>
+                    <input type="text" id="marca" placeholder="Ej: Lenovo, Dell, HP" required>
+                </div>
+
+                <!-- Campo: Procesador -->
+                <div class="form-group">
+                    <label for="procesador">Procesador *</label>
+                    <input type="text" id="procesador" placeholder="Ej: Intel Core i5, AMD Ryzen 7" required>
+                </div>
+
+                <!-- Campo: Memoria RAM -->
+                <div class="form-group">
+                    <label for="ram">Memoria RAM *</label>
+                    <input type="text" id="ram" placeholder="Ej: 16GB DDR4" required>
+                </div>
+
+                <!-- Campo: Disco Rígido / Almacenamiento -->
+                <div class="form-group">
+                    <label for="almacenamiento">Disco Rígido / Almacenamiento *</label>
+                    <input type="text" id="almacenamiento" placeholder="Ej: 500GB SSD, 1TB HDD" required>
+                </div>
+
+                <!-- Campo: Placa de Video -->
+                <div class="form-group">
+                    <label for="video">Placa de Video *</label>
+                    <input type="text" id="video" placeholder="Ej: NVIDIA GTX 1660, Intel UHD" required>
+                </div>
+
+                <!-- Campo: Pulgadas del monitor -->
+                <div class="form-group">
+                    <label for="pulgadas">Pulgadas del Monitor/Pantalla *</label>
+                    <input type="text" id="pulgadas" placeholder="Ej: 15.6, 24, 27" required>
+                </div>
+
+                <!-- Botones de acción del formulario -->
+                <div class="form-buttons">
+                    <button type="submit" id="btn-guardar" class="btn btn-primary">Guardar Equipo</button>
+                    <button type="button" id="btn-cancelar" class="btn btn-secondary" style="display:none;">Cancelar Edición</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Sección de búsqueda y filtros -->
+        <section class="search-section">
+            <h2>Buscar Equipos</h2>
+            <div class="search-container">
+                <input type="text" id="buscador" placeholder="Buscar por titular, tipo, marca...">
+                <select id="filtro-tipo">
+                    <option value="">Todos los tipos</option>
+                    <option value="Notebook">Notebook</option>
+                    <option value="PC de Escritorio">PC de Escritorio</option>
+                    <option value="All-in-One">All-in-One</option>
+                    <option value="Servidor">Servidor</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Sección de la tabla/lista de equipos registrados -->
+        <section class="table-section">
+            <h2>Equipos Registrados (<span id="contador">0</span>)</h2>
+            <div class="table-container">
+                <table id="tabla-equipos">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Titular</th>
+                            <th>Marca</th>
+                            <th>Procesador</th>
+                            <th>RAM</th>
+                            <th>Almacenamiento</th>
+                            <th>Video</th>
+                            <th>Pulgadas</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpo-tabla">
+                        <!-- Las filas se generarán dinámicamente con JavaScript -->
+                    </tbody>
+                </table>
+                <!-- Mensaje cuando no hay equipos -->
+                <div id="sin-equipos" class="sin-equipos">
+                    <p>No hay equipos registrados. Complete el formulario para agregar uno.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Enlace al archivo JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
