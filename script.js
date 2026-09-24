@@ -1,40 +1,13 @@
-/**
- * Sistema de Gestión de Equipos
- * 
- * Aplicación CRUD para administrar computadoras. Permite registrar, editar,
- * eliminar, buscar y filtrar equipos, además de exportar e importar los datos
- * en formato JSON. Toda la información se persiste en localStorage.
- */
 
-/**
- * Arreglo principal que almacena todos los equipos registrados.
- * Cada equipo es un objeto con las propiedades del formulario.
- * Los datos se persisten en localStorage para que no se pierdan
- * al cerrar o actualizar la página.
- */
 let equipos = [];
 
-/**
- * Clave utilizada en localStorage para guardar y recuperar los equipos.
- */
 const STORAGE_KEY = 'equipos_gestion';
 
-/**
- * Variable que controla si estamos editando un equipo existente.
- * Contiene el índice del equipo en el arreglo o null si es uno nuevo.
- */
 let editandoIndex = null;
 
-// 
-// REFERENCIAS A ELEMENTOS DEL DOM
-// 
-
-/**
- * Se obtienen las referencias a todos los elementos HTML con los que
- * interactúa la aplicación. Esto se ejecuta una sola vez al cargar la página.
- */
 
 // Formulario y sus campos
+
 const formulario = document.getElementById('equipo-form');
 const inputTipo = document.getElementById('tipo');
 const inputTitular = document.getElementById('titular');
@@ -47,15 +20,18 @@ const inputPulgadas = document.getElementById('pulgadas');
 const inputEstado = document.getElementById('estado');
 
 // Botones del formulario
+
 const btnGuardar = document.getElementById('btn-guardar');
 const btnCancelar = document.getElementById('btn-cancelar');
 
 // Búsqueda y filtros
+
 const inputBuscador = document.getElementById('buscador');
 const selectFiltroTipo = document.getElementById('filtro-tipo');
 const selectFiltroEstado = document.getElementById('filtro-estado');
 
 // Tabla, contadores y mensajes
+
 const cuerpoTabla = document.getElementById('cuerpo-tabla');
 const contadorEquipos = document.getElementById('contador');
 const sinEquipos = document.getElementById('sin-equipos');
@@ -72,54 +48,32 @@ const btnExportar = document.getElementById('btn-exportar');
 const btnImportar = document.getElementById('btn-importar');
 const inputImportar = document.getElementById('input-importar');
 
-// 
 // FUNCIONES AUXILIARES
-// 
 
-/**
- * Función: obtenerClaseEstado
- * Descripción: Devuelve la clase CSS correspondiente a un estado del equipo.
- * 
- * Parámetros:
- *   - estado: Estado del equipo (Operativo, En reparación o Descartado)
- * Retorna: String con el nombre de la clase CSS
- */
+
 function obtenerClaseEstado(estado) {
+
+    //Descripción: Devuelve la clase CSS correspondiente a un estado del equipo.
+
     if (estado === 'Operativo') return 'operativo';
     if (estado === 'En reparación') return 'reparacion';
     if (estado === 'Descartado') return 'descartado';
     return 'operativo';
 }
 
-/**
- * Función: actualizarContadores
- * Descripción: Actualiza los contadores de la interfaz mostrando la cantidad
- * total de equipos registrados y la cantidad correspondiente a cada estado.
- * 
- * Parámetros: Ninguno
- * Retorna: Nada (modifica el DOM)
- */
+
+
 function actualizarContadores() {
+//Actualiza los contadores de la interfaz mostrando la cantidad total de equipos registrados y la cantidad correspondiente a cada estado.
+
     contadorTotal.textContent = equipos.length;
     contadorOperativo.textContent = equipos.filter(equipo => equipo.estado === 'Operativo').length;
     contadorReparacion.textContent = equipos.filter(equipo => equipo.estado === 'En reparación').length;
     contadorDescartado.textContent = equipos.filter(equipo => equipo.estado === 'Descartado').length;
 }
 
-// 
-// FUNCIONES DE PERSISTENCIA (LOCALSTORAGE)
-// 
 
-/**
- * Función: guardarEnLocalStorage
- * Descripción: Guarda el arreglo de equipos en localStorage como texto JSON.
- * Se llama después de cada operación que modifica los datos (guardar, editar,
- * eliminar e importar), de modo que la información permanezca almacenada
- * aunque se cierre o actualice la página.
- * 
- * Parámetros: Ninguno
- * Retorna: Nada
- */
+
 function guardarEnLocalStorage() {
     // Guardamos el arreglo completo de equipos bajo la clave STORAGE_KEY.
     // JSON.stringify convierte el arreglo de objetos en texto JSON,
@@ -127,15 +81,9 @@ function guardarEnLocalStorage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(equipos));
 }
 
-/**
- * Función: cargarDeLocalStorage
- * Descripción: Recupera los equipos almacenados en localStorage cuando la
- * página se abre o se actualiza. Si no hay datos guardados o el JSON es
- * inválido, deja el arreglo vacío para iniciar sin registros.
- * 
- * Parámetros: Ninguno
- * Retorna: Nada
- */
+
+ // Descripción: Recupera los equipos almacenados en localStorage cuando la página se abre o se actualiza. Si no hay datos guardados o el JSON es inválido, deja el arreglo vacío para iniciar sin registros.
+
 function cargarDeLocalStorage() {
     const datosGuardados = localStorage.getItem(STORAGE_KEY);
 
@@ -163,19 +111,7 @@ function cargarDeLocalStorage() {
     }
 }
 
-// 
-// FUNCIONES DE RENDERIZADO (MOSTRAR DATOS)
-// 
 
-/**
- * Función: renderizarTabla
- * Descripción: Actualiza la tabla HTML con todos los equipos del arreglo,
- * generando las filas dinámicamente. También actualiza el contador general,
- * el mensaje de "sin equipos" y los contadores por estado.
- * 
- * Parámetros: Ninguno
- * Retorna: Nada (modifica el DOM directamente)
- */
 function renderizarTabla() {
     cuerpoTabla.innerHTML = '';
 
@@ -209,19 +145,10 @@ function renderizarTabla() {
     actualizarContadores();
 }
 
-// 
-// FUNCIONES CRUD - CREAR (GUARDAR)
-// 
 
-/**
- * Función: guardarEquipo
- * Descripción: Toma los datos del formulario y los guarda en el arreglo.
- * Si se está editando un equipo existente, lo actualiza; si es uno nuevo, lo
- * agrega al final del arreglo. Luego persiste los cambios en localStorage.
- * 
- * Parámetros: Ninguno (lee los valores directamente del DOM)
- * Retorna: Nada
- */
+// FUNCIONES CRUD - CREAR (GUARDAR)
+
+
 function guardarEquipo() {
     if (!inputTipo.value || !inputTitular.value || !inputMarca.value ||
         !inputProcesador.value || !inputRam.value || !inputAlmacenamiento.value ||
@@ -324,20 +251,7 @@ function eliminarEquipo(index) {
     }
 }
 
-// 
-// FUNCIONES CRUD - BUSCAR (LEER/FILTRAR)
-// 
 
-/**
- * Función: buscarEquipos
- * Descripción: Filtra los equipos según el texto de búsqueda, el tipo y el
- * estado seleccionados. La búsqueda funciona en tiempo real (cada vez que el
- * usuario escribe o cambia un filtro) y se busca coincidencias parciales en
- * titular, tipo, marca y procesador.
- * 
- * Parámetros: Ninguno
- * Retorna: Nada (actualiza la tabla directamente)
- */
 function buscarEquipos() {
     const textoBusqueda = inputBuscador.value.toLowerCase().trim();
     const tipoFiltro = selectFiltroTipo.value;
@@ -359,16 +273,7 @@ function buscarEquipos() {
     renderizarTablaFiltrada(equiposFiltrados);
 }
 
-/**
- * Función: renderizarTablaFiltrada
- * Descripción: Muestra en la tabla únicamente los equipos que coinciden con
- * los criterios de búsqueda. Es similar a renderizarTabla() pero trabaja con
- * el arreglo de equipos filtrado.
- * 
- * Parámetros:
- *   - arrayFiltrado: Arreglo de equipos que coinciden con la búsqueda
- * Retorna: Nada (modifica el DOM)
- */
+
 function renderizarTablaFiltrada(arrayFiltrado) {
     cuerpoTabla.innerHTML = '';
 
@@ -404,18 +309,7 @@ function renderizarTablaFiltrada(arrayFiltrado) {
     actualizarContadores();
 }
 
-// 
-// FUNCIÓN PARA CANCELAR EDICIÓN
-// 
 
-/**
- * Función: cancelarEdicion
- * Descripción: Cancela el modo edición y restaura el formulario a su estado
- * inicial. Se llama cuando el usuario presiona el botón "Cancelar Edición".
- * 
- * Parámetros: Ninguno
- * Retorna: Nada
- */
 function cancelarEdicion() {
     editandoIndex = null;
     formulario.reset();
@@ -424,19 +318,7 @@ function cancelarEdicion() {
     btnGuardar.textContent = 'Guardar Equipo';
 }
 
-// 
-// FUNCIONES DE EXPORTACIÓN E IMPORTACIÓN
-// 
 
-/**
- * Función: exportarJSON
- * Descripción: Descarga un archivo JSON con todos los equipos registrados.
- * Crea un objeto Blob con el contenido, genera una URL temporal y simula un
- * clic en un enlace de descarga para guardar el archivo en el equipo.
- * 
- * Parámetros: Ninguno
- * Retorna: Nada
- */
 function exportarJSON() {
     if (equipos.length === 0) {
         alert('No hay equipos registrados para exportar.');
@@ -458,16 +340,7 @@ function exportarJSON() {
     alert(`Se exportaron ${equipos.length} equipos correctamente.`);
 }
 
-/**
- * Función: importarJSON
- * Descripción: Lee un archivo JSON seleccionado por el usuario y carga los
- * equipos en el sistema, reemplazando los registros actuales. Valida que el
- * archivo contenga un arreglo y persiste los datos importados.
- * 
- * Parámetros:
- *   - evento: Objeto del evento change del input de archivo
- * Retorna: Nada
- */
+
 function importarJSON(evento) {
     const archivo = evento.target.files[0];
 
@@ -501,15 +374,9 @@ function importarJSON(evento) {
     evento.target.value = '';
 }
 
-// 
 // EVENTOS (EVENT LISTENERS)
-// 
 
-/**
- * Evento: submit del formulario
- * Descripción: Se ejecuta al presionar "Guardar" o "Actualizar". Se previene
- * el comportamiento por defecto (recarga de la página) con preventDefault().
- */
+
 formulario.addEventListener('submit', function(evento) {
     evento.preventDefault();
     guardarEquipo();
@@ -575,11 +442,7 @@ inputImportar.addEventListener('change', function(evento) {
 // INICIALIZACIÓN
 // 
 
-/**
- * Bloque de inicialización
- * Descripción: Se ejecuta una vez cuando la página termina de cargar.
- * Carga los equipos persistidos en localStorage y renderiza la interfaz.
- */
+
 document.addEventListener('DOMContentLoaded', function() {
     cargarDeLocalStorage();
     renderizarTabla();
