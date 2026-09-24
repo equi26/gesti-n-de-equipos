@@ -1,10 +1,23 @@
+/**
+ * Sistema de Gestión de Equipos
+ * 
+ * Aplicación CRUD para administrar computadoras. Permite registrar, editar,
+ * eliminar, buscar y filtrar equipos, además de exportar e importar los datos
+ * en formato JSON. Toda la información se persiste en localStorage.
+ */
 
 /**
  * Arreglo principal que almacena todos los equipos registrados.
  * Cada equipo es un objeto con las propiedades del formulario.
- * Nota: Los datos se pierden al recargar la página (sin persistencia).
+ * Los datos se persisten en localStorage para que no se pierdan
+ * al cerrar o actualizar la página.
  */
 let equipos = [];
+
+/**
+ * Clave utilizada en localStorage para guardar y recuperar los equipos.
+ */
+const STORAGE_KEY = 'equipos_gestion';
 
 /**
  * Variable que controla si estamos editando un equipo existente.
@@ -17,35 +30,138 @@ let editandoIndex = null;
 // 
 
 /**
- * Obtenemos las referencias a todos los elementos HTML con los que
- * interactuaremos desde JavaScript. Esto se ejecuta una sola vez
- * al cargar la página para optimizar el rendimiento.
+ * Se obtienen las referencias a todos los elementos HTML con los que
+ * interactúa la aplicación. Esto se ejecuta una sola vez al cargar la página.
  */
 
 // Formulario y sus campos
-const formulario = document.getElementById('equipo-form');         // Formulario principal
-const inputTipo = document.getElementById('tipo');                 // Select de tipo de computadora
-const inputTitular = document.getElementById('titular');           // Input del nombre del titular
-const inputMarca = document.getElementById('marca');               // Input de la marca
-const inputProcesador = document.getElementById('procesador');     // Input del procesador
-const inputRam = document.getElementById('ram');                   // Input de la memoria RAM
-const inputAlmacenamiento = document.getElementById('almacenamiento'); // Input del almacenamiento
-const inputVideo = document.getElementById('video');               // Input de la placa de video
-const inputPulgadas = document.getElementById('pulgadas');         // Input de las pulgadas
+const formulario = document.getElementById('equipo-form');
+const inputTipo = document.getElementById('tipo');
+const inputTitular = document.getElementById('titular');
+const inputMarca = document.getElementById('marca');
+const inputProcesador = document.getElementById('procesador');
+const inputRam = document.getElementById('ram');
+const inputAlmacenamiento = document.getElementById('almacenamiento');
+const inputVideo = document.getElementById('video');
+const inputPulgadas = document.getElementById('pulgadas');
+const inputEstado = document.getElementById('estado');
 
-// Botones
-const btnGuardar = document.getElementById('btn-guardar');         // Botón para guardar/editar
-const btnCancelar = document.getElementById('btn-cancelar');       // Botón para cancelar edición
+// Botones del formulario
+const btnGuardar = document.getElementById('btn-guardar');
+const btnCancelar = document.getElementById('btn-cancelar');
 
 // Búsqueda y filtros
-const inputBuscador = document.getElementById('buscador');         // Campo de búsqueda de texto
-const selectFiltroTipo = document.getElementById('filtro-tipo');   // Filtro por tipo de equipo
+const inputBuscador = document.getElementById('buscador');
+const selectFiltroTipo = document.getElementById('filtro-tipo');
+const selectFiltroEstado = document.getElementById('filtro-estado');
 
-// Tabla y elementos relacionados
-const cuerpoTabla = document.getElementById('cuerpo-tabla');       // Cuerpo de la tabla (tbody)
-const contadorEquipos = document.getElementById('contador');       // Span que muestra la cantidad
-const sinEquipos = document.getElementById('sin-equipos');         // Mensaje cuando no hay equipos
-const formTitle = document.getElementById('form-title');           // Título del formulario
+// Tabla, contadores y mensajes
+const cuerpoTabla = document.getElementById('cuerpo-tabla');
+const contadorEquipos = document.getElementById('contador');
+const sinEquipos = document.getElementById('sin-equipos');
+const formTitle = document.getElementById('form-title');
+
+// Contadores de equipos por estado
+const contadorTotal = document.getElementById('contador-total');
+const contadorOperativo = document.getElementById('contador-operativo');
+const contadorReparacion = document.getElementById('contador-reparacion');
+const contadorDescartado = document.getElementById('contador-descartado');
+
+// Exportación e importación de datos
+const btnExportar = document.getElementById('btn-exportar');
+const btnImportar = document.getElementById('btn-importar');
+const inputImportar = document.getElementById('input-importar');
+
+// 
+// FUNCIONES AUXILIARES
+// 
+
+/**
+ * Función: obtenerClaseEstado
+ * Descripción: Devuelve la clase CSS correspondiente a un estado del equipo.
+ * 
+ * Parámetros:
+ *   - estado: Estado del equipo (Operativo, En reparación o Descartado)
+ * Retorna: String con el nombre de la clase CSS
+ */
+function obtenerClaseEstado(estado) {
+    if (estado === 'Operativo') return 'operativo';
+    if (estado === 'En reparación') return 'reparacion';
+    if (estado === 'Descartado') return 'descartado';
+    return 'operativo';
+}
+
+/**
+ * Función: actualizarContadores
+ * Descripción: Actualiza los contadores de la interfaz mostrando la cantidad
+ * total de equipos registrados y la cantidad correspondiente a cada estado.
+ * 
+ * Parámetros: Ninguno
+ * Retorna: Nada (modifica el DOM)
+ */
+function actualizarContadores() {
+    contadorTotal.textContent = equipos.length;
+    contadorOperativo.textContent = equipos.filter(equipo => equipo.estado === 'Operativo').length;
+    contadorReparacion.textContent = equipos.filter(equipo => equipo.estado === 'En reparación').length;
+    contadorDescartado.textContent = equipos.filter(equipo => equipo.estado === 'Descartado').length;
+}
+
+// 
+// FUNCIONES DE PERSISTENCIA (LOCALSTORAGE)
+// 
+
+/**
+ * Función: guardarEnLocalStorage
+ * Descripción: Guarda el arreglo de equipos en localStorage como texto JSON.
+ * Se llama después de cada operación que modifica los datos (guardar, editar,
+ * eliminar e importar), de modo que la información permanezca almacenada
+ * aunque se cierre o actualice la página.
+ * 
+ * Parámetros: Ninguno
+ * Retorna: Nada
+ */
+function guardarEnLocalStorage() {
+    // Guardamos el arreglo completo de equipos bajo la clave STORAGE_KEY.
+    // JSON.stringify convierte el arreglo de objetos en texto JSON,
+    // que es el único formato que localStorage puede almacenar.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(equipos));
+}
+
+/**
+ * Función: cargarDeLocalStorage
+ * Descripción: Recupera los equipos almacenados en localStorage cuando la
+ * página se abre o se actualiza. Si no hay datos guardados o el JSON es
+ * inválido, deja el arreglo vacío para iniciar sin registros.
+ * 
+ * Parámetros: Ninguno
+ * Retorna: Nada
+ */
+function cargarDeLocalStorage() {
+    const datosGuardados = localStorage.getItem(STORAGE_KEY);
+
+    if (datosGuardados) {
+        try {
+            // Convertimos el texto JSON obtenido de localStorage nuevamente
+            // en un arreglo de objetos con JSON.parse.
+            equipos = JSON.parse(datosGuardados);
+
+            // Normalizamos los registros para que todos tengan un estado.
+            // Es útil por si existen datos guardados de versiones anteriores
+            // que aún no contaban con el campo 'estado'.
+            equipos = equipos.map(equipo => {
+                if (!equipo.estado) {
+                    equipo.estado = 'Operativo';
+                }
+                return equipo;
+            });
+        } catch (error) {
+            // Si el contenido guardado está corrupto, no se puede leer,
+            // así que reiniciamos el arreglo para evitar errores.
+            console.error('Error al leer los datos de localStorage:', error);
+            equipos = [];
+        }
+    }
+}
 
 // 
 // FUNCIONES DE RENDERIZADO (MOSTRAR DATOS)
@@ -53,34 +169,23 @@ const formTitle = document.getElementById('form-title');           // Título de
 
 /**
  * Función: renderizarTabla
- * Descripción: Actualiza la tabla HTML con todos los equipos del arreglo.
- * Recorre el array 'equipos' y genera las filas dinámicamente.
- * También actualiza el contador y el mensaje de "sin equipos".
+ * Descripción: Actualiza la tabla HTML con todos los equipos del arreglo,
+ * generando las filas dinámicamente. También actualiza el contador general,
+ * el mensaje de "sin equipos" y los contadores por estado.
  * 
  * Parámetros: Ninguno
  * Retorna: Nada (modifica el DOM directamente)
  */
 function renderizarTabla() {
-    // Limpiamos el contenido actual de la tabla
     cuerpoTabla.innerHTML = '';
 
-    // Verificamos si hay equipos para mostrar
     if (equipos.length === 0) {
-        // Si no hay equipos, mostramos el mensaje informativo
         sinEquipos.style.display = 'block';
     } else {
-        // Si hay equipos, ocultamos el mensaje
         sinEquipos.style.display = 'none';
 
-        // Recorremos cada equipo del arreglo usando forEach
-        // El parámetro 'equipo' representa cada objeto equipo
-        // El parámetro 'index' es la posición en el arreglo (para editar/eliminar)
         equipos.forEach((equipo, index) => {
-            // Creamos un nuevo elemento <tr> (fila de tabla)
             const fila = document.createElement('tr');
-
-            // Insertamos las celdas con los datos del equipo
-            // Cada celda <td> muestra un dato específico
             fila.innerHTML = `
                 <td>${equipo.tipo}</td>
                 <td>${equipo.titular}</td>
@@ -90,19 +195,18 @@ function renderizarTabla() {
                 <td>${equipo.almacenamiento}</td>
                 <td>${equipo.video}</td>
                 <td>${equipo.pulgadas}</td>
+                <td><span class="estado-badge estado-${obtenerClaseEstado(equipo.estado)}">${equipo.estado}</span></td>
                 <td class="acciones">
                     <button class="btn btn-edit" onclick="editarEquipo(${index})">Editar</button>
                     <button class="btn btn-delete" onclick="eliminarEquipo(${index})">Eliminar</button>
                 </td>
             `;
-
-            // Agregamos la fila al cuerpo de la tabla
             cuerpoTabla.appendChild(fila);
         });
     }
 
-    // Actualizamos el contador de equipos registrados
     contadorEquipos.textContent = equipos.length;
+    actualizarContadores();
 }
 
 // 
@@ -112,230 +216,171 @@ function renderizarTabla() {
 /**
  * Función: guardarEquipo
  * Descripción: Toma los datos del formulario y los guarda en el arreglo.
- * Si se está editando, actualiza el equipo existente.
- * Si es nuevo, lo agrega al final del arreglo.
+ * Si se está editando un equipo existente, lo actualiza; si es uno nuevo, lo
+ * agrega al final del arreglo. Luego persiste los cambios en localStorage.
  * 
  * Parámetros: Ninguno (lee los valores directamente del DOM)
  * Retorna: Nada
  */
 function guardarEquipo() {
-    // Verificamos que todos los campos obligatorios estén completos
-    // Si alguno está vacío, mostramos una alerta y salimos de la función
     if (!inputTipo.value || !inputTitular.value || !inputMarca.value ||
         !inputProcesador.value || !inputRam.value || !inputAlmacenamiento.value ||
         !inputVideo.value || !inputPulgadas.value) {
         alert('Por favor, complete todos los campos obligatorios.');
-        return; // Salimos de la función si hay campos vacíos
+        return;
     }
 
-    // Creamos un objeto con los datos del formulario
-    // Este objeto representa un equipo con todas sus propiedades
     const nuevoEquipo = {
-        tipo: inputTipo.value,                       // Tipo de computadora
-        titular: inputTitular.value.trim(),           // Nombre del titular (sin espacios extras)
-        marca: inputMarca.value.trim(),               // Marca del equipo
-        procesador: inputProcesador.value.trim(),     // Modelo del procesador
-        ram: inputRam.value.trim(),                   // Cantidad y tipo de RAM
-        almacenamiento: inputAlmacenamiento.value.trim(),  // Capacidad del disco
-        video: inputVideo.value.trim(),              // Placa de video
-        pulgadas: inputPulgadas.value.trim()         // Tamaño de pantalla
+        tipo: inputTipo.value,
+        titular: inputTitular.value.trim(),
+        marca: inputMarca.value.trim(),
+        procesador: inputProcesador.value.trim(),
+        ram: inputRam.value.trim(),
+        almacenamiento: inputAlmacenamiento.value.trim(),
+        video: inputVideo.value.trim(),
+        pulgadas: inputPulgadas.value.trim(),
+        estado: inputEstado.value
     };
 
-    // Verificamos si estamos en modo edición o creando uno nuevo
     if (editandoIndex !== null) {
-        // MODO EDICIÓN: Actualizamos el equipo en la posición indicada
-        // El operador spread (...) copia todas las propiedades del nuevo objeto
         equipos[editandoIndex] = nuevoEquipo;
-        
-        // Mostramos mensaje de éxito
         alert('Equipo actualizado correctamente.');
-        
-        // Reseteamos el modo edición
         editandoIndex = null;
-        
-        // Restauramos el título del formulario
         formTitle.textContent = 'Registrar Nuevo Equipo';
-        
-        // Ocultamos el botón de cancelar edición
         btnCancelar.style.display = 'none';
-        
-        // Cambiamos el texto del botón guardar
         btnGuardar.textContent = 'Guardar Equipo';
     } else {
-        // MODO CREACIÓN: Agregamos el nuevo equipo al final del arreglo
-        // El método push() agrega un elemento al final del array
         equipos.push(nuevoEquipo);
-        
-        // Mostramos mensaje de éxito
         alert('Equipo guardado correctamente.');
     }
 
-    // Limpiamos el formulario para poder ingresar otro equipo
+    guardarEnLocalStorage();
     formulario.reset();
-
-    // Actualizamos la tabla para mostrar el nuevo equipo
     renderizarTabla();
 }
 
-
+// 
 // FUNCIONES CRUD - EDITAR (ACTUALIZAR)
+// 
 
 /**
  * Función: editarEquipo
- * Descripción: Carga los datos de un equipo en el formulario para modificarlos.
- * Cambia el formulario a modo edición y espera que el usuario haga los cambios.
+ * Descripción: Carga los datos de un equipo del arreglo en el formulario,
+ * permitiendo modificarlos. Cambia el formulario a modo edición.
  * 
  * Parámetros:
  *   - index: Posición del equipo en el arreglo 'equipos'
  * Retorna: Nada
  */
 function editarEquipo(index) {
-    // Obtenemos el equipo del arreglo usando su índice
     const equipo = equipos[index];
 
-    // Cargamos cada dato del equipo en su campo correspondiente del formulario
-    inputTipo.value = equipo.tipo;                  // Select de tipo
-    inputTitular.value = equipo.titular;            // Input del titular
-    inputMarca.value = equipo.marca;                // Input de la marca
-    inputProcesador.value = equipo.procesador;      // Input del procesador
-    inputRam.value = equipo.ram;                    // Input de la RAM
-    inputAlmacenamiento.value = equipo.almacenamiento; // Input del almacenamiento
-    inputVideo.value = equipo.video;                // Input del video
-    inputPulgadas.value = equipo.pulgadas;          // Input de las pulgadas
+    inputTipo.value = equipo.tipo;
+    inputTitular.value = equipo.titular;
+    inputMarca.value = equipo.marca;
+    inputProcesador.value = equipo.procesador;
+    inputRam.value = equipo.ram;
+    inputAlmacenamiento.value = equipo.almacenamiento;
+    inputVideo.value = equipo.video;
+    inputPulgadas.value = equipo.pulgadas;
+    inputEstado.value = equipo.estado || 'Operativo';
 
-    // Activamos el modo edición guardando el índice del equipo
     editandoIndex = index;
-
-    // Actualizamos el título del formulario para indicar que estamos editando
     formTitle.textContent = 'Editar Equipo';
-
-    // Mostramos el botón de cancelar edición
     btnCancelar.style.display = 'inline-block';
-
-    // Cambiamos el texto del botón guardar para reflejar la acción
     btnGuardar.textContent = 'Actualizar Equipo';
 
-    // Hacemos scroll al formulario para que el usuario vea dónde debe editar
-    // El comportamiento 'smooth' crea una animación suave al hacer scroll
     formulario.scrollIntoView({ behavior: 'smooth' });
 }
 
-
+// 
 // FUNCIONES CRUD - ELIMINAR
-
+// 
 
 /**
  * Función: eliminarEquipo
  * Descripción: Elimina un equipo del arreglo tras confirmación del usuario.
- * Muestra una ventana de confirmación antes de borrar permanentemente.
+ * Muestra una ventana de confirmación antes de borrar permanentemente y
+ * persiste el cambio en localStorage.
  * 
  * Parámetros:
  *   - index: Posición del equipo en el arreglo 'equipos'
  * Retorna: Nada
  */
 function eliminarEquipo(index) {
-    // Obtenemos el nombre del titular para mostrar en la confirmación
     const nombreTitular = equipos[index].titular;
-
-    // Pedimos confirmación al usuario antes de eliminar
-    // La función confirm() muestra una ventana con botones Aceptar/Cancelar
-    // Retorna true si el usuario acepta, false si cancela
     const confirmar = confirm(`¿Está seguro que desea eliminar el equipo de "${nombreTitular}"?`);
 
-    // Solo eliminamos si el usuario confirmó
     if (confirmar) {
-        // El método splice() elimina elementos de un array
-        // Primer parámetro: posición a partir de la cual eliminar
-        // Segundo parámetro: cantidad de elementos a eliminar
         equipos.splice(index, 1);
 
-        // Si estábamos editando este equipo, cancelamos la edición
         if (editandoIndex === index) {
             cancelarEdicion();
         }
 
-        // Mostramos mensaje de éxito
+        guardarEnLocalStorage();
         alert('Equipo eliminado correctamente.');
-
-        // Actualizamos la tabla para reflejar la eliminación
         renderizarTabla();
     }
 }
 
-
+// 
 // FUNCIONES CRUD - BUSCAR (LEER/FILTRAR)
+// 
 
 /**
- * Function: buscarEquipos
- * Description: Filtra los equipos según el texto de búsqueda y el tipo seleccionado.
- * La búsqueda es en tiempo real (se ejecuta cada vez que el usuario escribe).
- * Busca coincidencias parciales en titular, tipo, marca y procesador.
+ * Función: buscarEquipos
+ * Descripción: Filtra los equipos según el texto de búsqueda, el tipo y el
+ * estado seleccionados. La búsqueda funciona en tiempo real (cada vez que el
+ * usuario escribe o cambia un filtro) y se busca coincidencias parciales en
+ * titular, tipo, marca y procesador.
  * 
- * Parameters: None
- * Returns: Nothing (updates the table directly)
+ * Parámetros: Ninguno
+ * Retorna: Nada (actualiza la tabla directamente)
  */
 function buscarEquipos() {
-    // Obtenemos el texto de búsqueda y lo convertimos a minúsculas
-    // toLowerCase() permite buscar sin importar mayúsculas/minúsculas
     const textoBusqueda = inputBuscador.value.toLowerCase().trim();
-    
-    // Obtenemos el tipo seleccionado en el filtro
     const tipoFiltro = selectFiltroTipo.value;
+    const estadoFiltro = selectFiltroEstado.value;
 
-    // Aplicamos filtro al arreglo de equipos usando el método filter()
-    // El método filter() crea un nuevo array con los elementos que cumplen la condición
     const equiposFiltrados = equipos.filter(equipo => {
-        // Verificamos si el equipo coincide con el texto de búsqueda
-        // Buscamos en titular, tipo, marca y procesador
         const coincideTexto = !textoBusqueda || 
             equipo.titular.toLowerCase().includes(textoBusqueda) ||
             equipo.tipo.toLowerCase().includes(textoBusqueda) ||
             equipo.marca.toLowerCase().includes(textoBusqueda) ||
             equipo.procesador.toLowerCase().includes(textoBusqueda);
 
-        // Verificamos si el equipo coincide con el filtro de tipo
         const coincideTipo = !tipoFiltro || equipo.tipo === tipoFiltro;
+        const coincideEstado = !estadoFiltro || equipo.estado === estadoFiltro;
 
-        // El equipo debe cumplir ambas condiciones para ser mostrado
-        return coincideTexto && coincideTipo;
+        return coincideTexto && coincideTipo && coincideEstado;
     });
 
-    // Renderizamos solo los equipos filtrados en la tabla
     renderizarTablaFiltrada(equiposFiltrados);
 }
 
 /**
  * Función: renderizarTablaFiltrada
- * Descripción: Muestra en la tabla únicamente los equipos filtrados.
+ * Descripción: Muestra en la tabla únicamente los equipos que coinciden con
+ * los criterios de búsqueda. Es similar a renderizarTabla() pero trabaja con
+ * el arreglo de equipos filtrado.
  * 
- * Es similar a renderizarTabla() pero trabaja con un array filtrado.
  * Parámetros:
  *   - arrayFiltrado: Arreglo de equipos que coinciden con la búsqueda
  * Retorna: Nada (modifica el DOM)
  */
 function renderizarTablaFiltrada(arrayFiltrado) {
-    // Limpiamos el contenido actual de la tabla
     cuerpoTabla.innerHTML = '';
 
-    // Verificamos si hay equipos filtrados para mostrar
     if (arrayFiltrado.length === 0) {
-        // Si no hay resultados, mostramos el mensaje
         sinEquipos.style.display = 'block';
         sinEquipos.querySelector('p').textContent = 'No se encontraron equipos con esos criterios.';
     } else {
-        // Si hay resultados, ocultamos el mensaje
         sinEquipos.style.display = 'none';
 
-        // Recorremos cada equipo filtrado y lo agregamos a la tabla
         arrayFiltrado.forEach((equipo) => {
-            // Buscamos el índice original del equipo en el array principal
-            // Esto es necesario para que los botones de editar/eliminar funcionen
             const indexOriginal = equipos.indexOf(equipo);
-
-            // Creamos la fila de la tabla
             const fila = document.createElement('tr');
-
-            // Insertamos los datos del equipo
             fila.innerHTML = `
                 <td>${equipo.tipo}</td>
                 <td>${equipo.titular}</td>
@@ -345,112 +390,200 @@ function renderizarTablaFiltrada(arrayFiltrado) {
                 <td>${equipo.almacenamiento}</td>
                 <td>${equipo.video}</td>
                 <td>${equipo.pulgadas}</td>
+                <td><span class="estado-badge estado-${obtenerClaseEstado(equipo.estado)}">${equipo.estado}</span></td>
                 <td class="acciones">
                     <button class="btn btn-edit" onclick="editarEquipo(${indexOriginal})">Editar</button>
                     <button class="btn btn-delete" onclick="eliminarEquipo(${indexOriginal})">Eliminar</button>
                 </td>
             `;
-
-            // Agregamos la fila al cuerpo de la tabla
             cuerpoTabla.appendChild(fila);
         });
     }
 
-    // Actualizamos el contador con la cantidad de equipos filtrados
     contadorEquipos.textContent = arrayFiltrado.length;
+    actualizarContadores();
 }
 
+// 
 // FUNCIÓN PARA CANCELAR EDICIÓN
+// 
 
 /**
  * Función: cancelarEdicion
- * Descripción: Cancela el modo edición y restaura el formulario a su estado inicial.
- * Se llama cuando el usuario presiona el botón "Cancelar Edición".
+ * Descripción: Cancela el modo edición y restaura el formulario a su estado
+ * inicial. Se llama cuando el usuario presiona el botón "Cancelar Edición".
  * 
  * Parámetros: Ninguno
  * Retorna: Nada
  */
 function cancelarEdicion() {
-    // Reseteamos el índice de edición a null (no estamos editando)
     editandoIndex = null;
-    
-    // Limpiamos todos los campos del formulario
     formulario.reset();
-    
-    // Restauramos el título original del formulario
     formTitle.textContent = 'Registrar Nuevo Equipo';
-    
-    // Ocultamos el botón de cancelar
     btnCancelar.style.display = 'none';
-    
-    // Restauramos el texto del botón guardar
     btnGuardar.textContent = 'Guardar Equipo';
 }
 
+// 
+// FUNCIONES DE EXPORTACIÓN E IMPORTACIÓN
+// 
 
+/**
+ * Función: exportarJSON
+ * Descripción: Descarga un archivo JSON con todos los equipos registrados.
+ * Crea un objeto Blob con el contenido, genera una URL temporal y simula un
+ * clic en un enlace de descarga para guardar el archivo en el equipo.
+ * 
+ * Parámetros: Ninguno
+ * Retorna: Nada
+ */
+function exportarJSON() {
+    if (equipos.length === 0) {
+        alert('No hay equipos registrados para exportar.');
+        return;
+    }
+
+    const blob = new Blob([JSON.stringify(equipos, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const enlaceDescarga = document.createElement('a');
+    enlaceDescarga.href = url;
+    enlaceDescarga.download = 'equipos.json';
+    document.body.appendChild(enlaceDescarga);
+    enlaceDescarga.click();
+
+    document.body.removeChild(enlaceDescarga);
+    URL.revokeObjectURL(url);
+
+    alert(`Se exportaron ${equipos.length} equipos correctamente.`);
+}
+
+/**
+ * Función: importarJSON
+ * Descripción: Lee un archivo JSON seleccionado por el usuario y carga los
+ * equipos en el sistema, reemplazando los registros actuales. Valida que el
+ * archivo contenga un arreglo y persiste los datos importados.
+ * 
+ * Parámetros:
+ *   - evento: Objeto del evento change del input de archivo
+ * Retorna: Nada
+ */
+function importarJSON(evento) {
+    const archivo = evento.target.files[0];
+
+    if (!archivo) return;
+
+    const lector = new FileReader();
+    lector.onload = function(resultado) {
+        try {
+            const datos = JSON.parse(resultado.target.result);
+
+            if (!Array.isArray(datos)) {
+                throw new Error('El archivo debe contener un listado de equipos.');
+            }
+
+            equipos = datos.map(equipo => {
+                if (!equipo.estado) {
+                    equipo.estado = 'Operativo';
+                }
+                return equipo;
+            });
+
+            guardarEnLocalStorage();
+            renderizarTabla();
+
+            alert(`Se importaron ${equipos.length} equipos correctamente.`);
+        } catch (error) {
+            alert('Error al importar el archivo: ' + error.message);
+        }
+    };
+    lector.readAsText(archivo);
+    evento.target.value = '';
+}
+
+// 
 // EVENTOS (EVENT LISTENERS)
-
+// 
 
 /**
  * Evento: submit del formulario
- * Descripción: Se ejecuta cuando el usuario presiona el botón "Guardar" o "Actualizar".
- * Prevenimos el comportamiento por defecto (recargar la página) con preventDefault().
+ * Descripción: Se ejecuta al presionar "Guardar" o "Actualizar". Se previene
+ * el comportamiento por defecto (recarga de la página) con preventDefault().
  */
 formulario.addEventListener('submit', function(evento) {
-    // Prevenimos que el formulario recargue la página
     evento.preventDefault();
-    
-    // Llamamos a la función guardarEquipo para procesar los datos
     guardarEquipo();
 });
 
 /**
  * Evento: click en botón cancelar
- * Descripción: Se ejecuta cuando el usuario presiona "Cancelar Edición".
- * Cancela la edición y restaura el formulario.
+ * Descripción: Cancela la edición y restaura el formulario.
  */
 btnCancelar.addEventListener('click', function() {
-    // Llamamos a la función que cancela la edición
     cancelarEdicion();
 });
 
 /**
  * Evento: input en el campo de búsqueda
- * Descripción: Se ejecuta cada vez que el usuario escribe en el buscador.
- * Realiza la búsqueda en tiempo real mientras el usuario tipea.
+ * Descripción: Realiza la búsqueda en tiempo real mientras el usuario escribe.
  */
 inputBuscador.addEventListener('input', function() {
-    // Llamamos a la función de búsqueda
     buscarEquipos();
 });
 
 /**
  * Evento: change en el filtro de tipo
- * Descripción: Se ejecuta cuando el usuario cambia la selección del filtro de tipo.
- * Actualiza los resultados mostrados según el tipo seleccionado.
+ * Descripción: Actualiza los resultados mostrados según el tipo seleccionado.
  */
 selectFiltroTipo.addEventListener('change', function() {
-    // Llamamos a la función de búsqueda
     buscarEquipos();
 });
 
+/**
+ * Evento: change en el filtro de estado
+ * Descripción: Actualiza los resultados mostrados según el estado seleccionado.
+ */
+selectFiltroEstado.addEventListener('change', function() {
+    buscarEquipos();
+});
 
+/**
+ * Evento: click en botón exportar
+ * Descripción: Exporta los equipos registrados a un archivo JSON.
+ */
+btnExportar.addEventListener('click', function() {
+    exportarJSON();
+});
+
+/**
+ * Evento: click en botón importar
+ * Descripción: Abre el selector de archivos para elegir un archivo JSON.
+ */
+btnImportar.addEventListener('click', function() {
+    inputImportar.click();
+});
+
+/**
+ * Evento: change en el input de archivo
+ * Descripción: Procesa el archivo JSON seleccionado e importa los equipos.
+ */
+inputImportar.addEventListener('change', function(evento) {
+    importarJSON(evento);
+});
+
+// 
 // INICIALIZACIÓN
-
+// 
 
 /**
  * Bloque de inicialización
  * Descripción: Se ejecuta una vez cuando la página termina de cargar.
- * Configura el estado inicial de la interfaz.
+ * Carga los equipos persistidos en localStorage y renderiza la interfaz.
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Renderizamos la tabla con el estado inicial (vacía)
+    cargarDeLocalStorage();
     renderizarTabla();
-    
-    // Mostramos el mensaje de "sin equipos"
-    sinEquipos.style.display = 'block';
-    
-    // Mensaje en consola para verificación (opcional)
+
     console.log('Sistema de Gestión de Equipos inicializado correctamente.');
-    console.log('Nota: Los datos se guardan en memoria y se pierden al recargar la página.');
+    console.log('Los datos se cargan desde localStorage y se persisten automáticamente.');
 });

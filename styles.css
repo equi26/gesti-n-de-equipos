@@ -299,6 +299,129 @@ section h2 {
 }
 
 /* 
+   SECCIÓN DE CONTADORES
+    */
+.counters-section {
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+}
+
+.counters-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.counter-card {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.counter-card:hover {
+    transform: translateY(-3px);
+}
+
+.counter-value {
+    display: block;
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.counter-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin-top: 5px;
+}
+
+.counter-total {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.counter-total .counter-value,
+.counter-total .counter-label {
+    color: #fff;
+}
+
+.counter-operativo .counter-value {
+    color: #48bb78;
+}
+
+.counter-reparacion .counter-value {
+    color: #ed8936;
+}
+
+.counter-descartado .counter-value {
+    color: #fc8181;
+}
+
+/* 
+   BADGE DE ESTADO EN LA TABLA
+    */
+.estado-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.estado-operativo {
+    background: #48bb78;
+}
+
+.estado-reparacion {
+    background: #ed8936;
+}
+
+.estado-descartado {
+    background: #fc8181;
+}
+
+/* 
+   SECCIÓN DE EXPORTACIÓN E IMPORTACIÓN
+    */
+.io-section {
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+}
+
+.io-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-export {
+    background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+    color: #fff;
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(56, 178, 172, 0.4);
+}
+
+.btn-import {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+    color: #fff;
+}
+
+.btn-import:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(237, 137, 54, 0.4);
+}
+
+/* 
    ANIMACIONES
     */
 @keyframes fadeIn {
@@ -353,6 +476,18 @@ section h2 {
         width: 100%;
     }
 
+    .counters-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .io-buttons {
+        flex-direction: column;
+    }
+
+    .io-buttons .btn {
+        width: 100%;
+    }
+
     .acciones {
         flex-direction: column;
     }
@@ -383,5 +518,9 @@ section h2 {
     #tabla-equipos th,
     #tabla-equipos td {
         padding: 8px 6px;
+    }
+
+    .counters-container {
+        grid-template-columns: 1fr;
     }
 }

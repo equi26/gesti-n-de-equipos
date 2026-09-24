@@ -71,6 +71,16 @@
                     <input type="text" id="pulgadas" placeholder="Ej: 15.6, 24, 27" required>
                 </div>
 
+                <!-- Campo: Estado del equipo -->
+                <div class="form-group">
+                    <label for="estado">Estado del Equipo *</label>
+                    <select id="estado" required>
+                        <option value="Operativo">Operativo</option>
+                        <option value="En reparación">En reparación</option>
+                        <option value="Descartado">Descartado</option>
+                    </select>
+                </div>
+
                 <!-- Botones de acción del formulario -->
                 <div class="form-buttons">
                     <button type="submit" id="btn-guardar" class="btn btn-primary">Guardar Equipo</button>
@@ -91,6 +101,45 @@
                     <option value="All-in-One">All-in-One</option>
                     <option value="Servidor">Servidor</option>
                 </select>
+                <select id="filtro-estado">
+                    <option value="">Todos los estados</option>
+                    <option value="Operativo">Operativo</option>
+                    <option value="En reparación">En reparación</option>
+                    <option value="Descartado">Descartado</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Sección de contadores de equipos por estado -->
+        <section class="counters-section">
+            <h2>Resumen de Equipos</h2>
+            <div class="counters-container">
+                <div class="counter-card counter-total">
+                    <span class="counter-value" id="contador-total">0</span>
+                    <span class="counter-label">Total de Equipos</span>
+                </div>
+                <div class="counter-card counter-operativo">
+                    <span class="counter-value" id="contador-operativo">0</span>
+                    <span class="counter-label">Operativos</span>
+                </div>
+                <div class="counter-card counter-reparacion">
+                    <span class="counter-value" id="contador-reparacion">0</span>
+                    <span class="counter-label">En Reparación</span>
+                </div>
+                <div class="counter-card counter-descartado">
+                    <span class="counter-value" id="contador-descartado">0</span>
+                    <span class="counter-label">Descartados</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de exportación e importación de datos -->
+        <section class="io-section">
+            <h2>Exportar / Importar Datos</h2>
+            <div class="io-buttons">
+                <button type="button" id="btn-exportar" class="btn btn-export">Exportar a JSON</button>
+                <button type="button" id="btn-importar" class="btn btn-import">Importar desde JSON</button>
+                <input type="file" id="input-importar" accept=".json,application/json" style="display:none;">
             </div>
         </section>
 
@@ -109,6 +158,7 @@
                             <th>Almacenamiento</th>
                             <th>Video</th>
                             <th>Pulgadas</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
